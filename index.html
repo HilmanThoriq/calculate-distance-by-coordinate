@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Jarak</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #00b4db, #0083b0);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+        }
+
+        .input-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .point-container {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #495057;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #dee2e6;
+            border-radius: 5px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #0083b0;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            max-width: 200px;
+            margin: 20px auto;
+            padding: 12px;
+            background: #0083b0;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background: #006d94;
+        }
+
+        #result {
+            text-align: center;
+            margin-top: 20px;
+            padding: 20px;
+            background: #e8f4f8;
+            border-radius: 10px;
+            font-size: 1.2em;
+            color: #2c3e50;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .input-group {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Kalkulator Jarak antar 2 Titik Koordinat</h1>
+        <div class="input-group">
+            <div class="point-container">
+                <h3>Titik Pertama</h3>
+                <div class="form-group">
+                    <label for="lat1">Latitude:</label>
+                    <input type="number" step="any" id="lat1" required>
+                </div>
+                <div class="form-group">
+                    <label for="lon1">Longitude:</label>
+                    <input type="number" step="any" id="lon1" required>
+                </div>
+                <div class="form-group">
+                    <label for="alt1">Altitude (meter):</label>
+                    <input type="number" step="any" id="alt1" required>
+                </div>
+            </div>
+            <div class="point-container">
+                <h3>Titik Kedua</h3>
+                <div class="form-group">
+                    <label for="lat2">Latitude:</label>
+                    <input type="number" step="any" id="lat2" required>
+                </div>
+                <div class="form-group">
+                    <label for="lon2">Longitude:</label>
+                    <input type="number" step="any" id="lon2" required>
+                </div>
+                <div class="form-group">
+                    <label for="alt2">Altitude (meter):</label>
+                    <input type="number" step="any" id="alt2" required>
+                </div>
+            </div>
+        </div>
+        <button onclick="hitungJarak()">Hitung Jarak</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function hitungJarak3D(lat1, lon1, alt1, lat2, lon2, alt2) {
+            const toRad = (Value) => {
+                return Value * Math.PI / 180;
+            };
+            const R = 6371e3; // Radius bumi dalam meter
+            const dLat = toRad(lat2-lat1);
+            const dLon = toRad(lon2-lon1);
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                     Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * 
+                     Math.sin(dLon/2) * Math.sin(dLon/2); 
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            const jarakHorizontal = R * c;
+            const dAlt = alt2 - alt1;
+            const jarak3D = Math.sqrt(jarakHorizontal**2 + dAlt**2);
+            return jarak3D;
+        }
+
+        function hitungJarak() {
+            const lat1 = parseFloat(document.getElementById('lat1').value);
+            const lon1 = parseFloat(document.getElementById('lon1').value);
+            const alt1 = parseFloat(document.getElementById('alt1').value);
+            const lat2 = parseFloat(document.getElementById('lat2').value);
+            const lon2 = parseFloat(document.getElementById('lon2').value);
+            const alt2 = parseFloat(document.getElementById('alt2').value);
+
+            if ([lat1, lon1, alt1, lat2, lon2, alt2].some(isNaN)) {
+                alert('Mohon isi semua field dengan angka yang valid');
+                return;
+            }
+
+            const jarak = hitungJarak3D(lat1, lon1, alt1, lat2, lon2, alt2);
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = `Jarak antara kedua titik adalah: ${jarak.toFixed(2)} meter`;
+        }
+    </script>
+</body>
+</html>
